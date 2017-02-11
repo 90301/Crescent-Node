@@ -33,6 +33,7 @@ server.listen(port, hostname, () => {
 prompt.start();
 prompt.get(['email', 'password'], function (err, result) {
   console.log('Login Successful!');
+  
 	/**********************************************************
 	* Logs into Facebook using previously povided credentials
 	*
