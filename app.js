@@ -49,11 +49,10 @@ login({email: 'tornadotroy8@yahoo.com', password: 'associate1808346'}, function 
             });
             console.log(event.body, event.threadID);
             
+            chatHistory(0, 99, event.threadID);
 
-            api.getThreadHistory(event.threadID, 0, 99, null, function(err, history){
+            /*api.getThreadHistory(event.threadID, 0, 99, null, function(err, history){
             	if (err) throw err;
-
-            	console.log('In function');
 
             	for (var j = history.length - 2; j >= 0; j--){
             		//console.log(history[j].body);
@@ -62,7 +61,7 @@ login({email: 'tornadotroy8@yahoo.com', password: 'associate1808346'}, function 
             	}
               console.log(event.body);
 
-            })
+            })*/
 
             //while (event.body != '/stop' || )
             fs.writeFile('myfile.txt',event.body, (err) => {
@@ -77,6 +76,22 @@ login({email: 'tornadotroy8@yahoo.com', password: 'associate1808346'}, function 
         }
     });
 
+    function chatHistory(messageStart, messageEnd, event){
+    	api.getThreadHistory(event, messageStart, messageEnd, null, function(err, history){
+            	if (err) throw err;
+
+            	for (var j = history.length - 2; j >= 0; j--){
+            		//console.log(history[j].body);
+            		console.log(history[j]);
+            		//output(api, event, history[j], save);
+            	}
+              console.log(event.body);
+
+            })
+    }
+});
+
+
     /*function output(api, message, text, save) {
     	v.section = 'quote output';
     	var tag = '-' + text.senderName + ' ' + moment(text.timestamp).format('MM/DD/YYYY');
@@ -85,7 +100,6 @@ login({email: 'tornadotroy8@yahoo.com', password: 'associate1808346'}, function 
     	api.sendMessage(s, message.threadID);
     	if (save) f.setDataSimple('threads/' + message.threadID + '/quotes/' + Date.now() + '_' + message.senderID, s, null);
 }*/
-});
 //});
 
 /*var delivery = dl.listen(socket);
