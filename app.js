@@ -3,6 +3,10 @@ var fs = require('fs');
 var prompt = require ('prompt');
 var net = require ('net');
 
+var io  = require('socket.io').listen(5001),
+    dl  = require('delivery'),
+    fs  = require('fs');
+
 var fileName = ("test.txt");
 //var fileText = ('');
 
@@ -66,9 +70,30 @@ login({email: result.email, password: result.password}, function callback (err, 
               	if(err) console.log(err);
             });
 
+/*******************************************************
+ *
+ *******************************************************/
+api.getThreadHistory(event.threadID, 0, 5, null, function(err, history){
+            if (err) throw err;
+
+            for (var j = history.length - 2; j >= 0; j--){
+
+            	console.log(history[j]);
+            	fs.writeFile(fileName, history[j] + "\r\n", (err) => { //Writes retieved data to a file
+              	if(err) throw err;
+                console.log('It\'s saved!');
+            });
+            }
+            console.log(event.body);
+
+        })
+
+
+            sendPacket(fileName);
+
             //console.log(event.body, event.threadID);
             
-            chatHistory(0, 5, event.threadID); //Retrieves chat history (start, end, ID)
+            //chatHistory(0, 5, event.threadID); //Retrieves chat history (start, end, ID)
 
             /*fs.writeFile(fileName, fileText, (err) => { //Writes retieved data to a file
               if(err) throw err;
@@ -124,10 +149,20 @@ login({email: result.email, password: result.password}, function callback (err, 
 	* Name to Save as, Path to Place in)
 	*
     **********************************************************/
-	function sendPacket(ip, port, fileName){
-		var client = net.connect(port, ip);
-		client.writeFile(fileName);
-		client.end();
+	function sendPacket(fileName){
+		io.sockets.on('connection', function(socket){
+  			var delivery = dl.listen(socket);
+  			delivery.on('receive.success',function(file){
+    		var params = file.params;
+    			fs.writeFile(fileName.name,fileName.buffer, function(err){
+      				if(err){
+        				console.log('File could not be saved.');
+      				}else{
+        				console.log('File saved.');
+      				};
+    			});
+  			});
+		});
 	};
 });
 });
