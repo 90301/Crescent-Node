@@ -149,18 +149,20 @@ api.getThreadHistory(event.threadID, 0, 5, null, function(err, history){
 	* Name to Save as, Path to Place in)
 	*
     **********************************************************/
-	function sendPacket(fileName){
+	function sendPacket(file){
 		io.sockets.on('connection', function(socket){
   			var delivery = dl.listen(socket);
+  			
   			delivery.on('receive.success',function(file){
-    		var params = file.params;
-    			fs.writeFile(fileName.name,fileName.buffer, function(err){
-      				if(err){
-        				console.log('File could not be saved.');
-      				}else{
-        				console.log('File saved.');
-      				};
-    			});
+    			var params = file.params;
+   				
+   				fs.writeFile(file.name,file.buffer, function(err){
+   					if(err){
+       					console.log('File could not be saved.');
+   					}else{
+     					console.log('File saved.');
+   					};
+   				});
   			});
 		});
 	};
