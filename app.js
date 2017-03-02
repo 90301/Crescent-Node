@@ -1,9 +1,10 @@
 var login = require("facebook-chat-api");
 var fs = require('fs');
 var prompt = require ('prompt');
-var io  = require('socket.io').listen(3000),
-    dl  = require('delivery'),
-    fs  = require('fs');
+var net = require ('net');
+
+var fileName = ("test.txt");
+var fileText = ('');
 
 	/**********************************************************
 	* Starts a local node.js server
@@ -33,7 +34,7 @@ server.listen(port, hostname, () => {
 prompt.start();
 prompt.get(['email', 'password'], function (err, result) {
   console.log('Login Successful!');
-  
+
 	/**********************************************************
 	* Logs into Facebook using previously povided credentials
 	*
@@ -65,14 +66,14 @@ login({email: result.email, password: result.password}, function callback (err, 
               	if(err) console.log(err);
             });
 
-            console.log(event.body, event.threadID);
+            //console.log(event.body, event.threadID);
             
-            chatHistory(0, 99, event.threadID); //Retrieves chat history (start, end, ID)
+            chatHistory(0, 5, event.threadID); //Retrieves chat history (start, end, ID)
 
-            fs.writeFile('myfile.txt',event.body, (err) => { //Writes retieved data to a file
+            /*fs.writeFile(fileName, fileText, (err) => { //Writes retieved data to a file
               if(err) throw err;
                 console.log('It\'s saved!');
-            });
+            });*/
 
             break;
 
@@ -81,6 +82,18 @@ login({email: result.email, password: result.password}, function callback (err, 
             break;
         }
     });
+
+	/**********************************************************
+	* Retrieves chat history based on parameters.
+	* chatHistory(earliest message, furthest, input)
+	*
+    **********************************************************/
+    function saveData(message, fileName, err){
+    	fs.writeFile(fileName, message, (err) =>{
+    		if(err) throw err;
+    			console.log('Saved to ' + fileName);
+    	})
+    }
 
     /**********************************************************
 	* Retrieves chat history based on parameters.
@@ -94,8 +107,11 @@ login({email: result.email, password: result.password}, function callback (err, 
             for (var j = history.length - 2; j >= 0; j--){
 
             	console.log(history[j]);
+            	fs.writeFile(fileName, history[j] + "\r\n", (err) => { //Writes retieved data to a file
+              	if(err) throw err;
+                console.log('It\'s saved!');
+            });
             }
-            
             console.log(event.body);
 
         })
@@ -109,27 +125,10 @@ login({email: result.email, password: result.password}, function callback (err, 
 	* Name to Save as, Path to Place in)
 	*
     **********************************************************/
-	function sendPacket(ip, port, fileName, filePath){
-		var delivery = dl.listen(socket);
-		var socket = io.connect(ip);
-
-		socket.on( 'connect', function(err) {
-			if (err) throw err;
-  			log( "Sockets connected" );
-        
-  			delivery = dl.listen( socket );
-  			delivery.connect();
-    
-  			delivery.on('delivery.connect',function(delivery){
-    			delivery.send({
-      				name: 'myfile.txt',
-      				path : './myfile.txt'
-    			});
- 
-    			delivery.on('send.success',function(file){
-      				console.log('File sent successfully!');
-    			});
-  			});  
-		});
+	function sendPacket(ip, port, fileName){
+		var client = net.connect(port, ip);
+		client.writeFile(fileName);
+		client.end();
 	};
+});
 });
