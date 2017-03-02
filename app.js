@@ -4,7 +4,7 @@ var prompt = require ('prompt');
 var net = require ('net');
 
 var fileName = ("test.txt");
-var fileText = ('');
+//var fileText = ('');
 
 	/**********************************************************
 	* Starts a local node.js server
@@ -84,8 +84,7 @@ login({email: result.email, password: result.password}, function callback (err, 
     });
 
 	/**********************************************************
-	* Retrieves chat history based on parameters.
-	* chatHistory(earliest message, furthest, input)
+	* Saves collected chat data
 	*
     **********************************************************/
     function saveData(message, fileName, err){
